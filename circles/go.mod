@@ -1,4 +1,4 @@
-module mycanvas
+module circles
 
 go 1.22
 
