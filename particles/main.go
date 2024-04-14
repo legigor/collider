@@ -5,7 +5,9 @@ import (
 	"github.com/gopxl/pixel"
 	"github.com/gopxl/pixel/imdraw"
 	"github.com/gopxl/pixel/pixelgl"
+	"github.com/gopxl/pixel/text"
 	"golang.org/x/image/colornames"
+	"golang.org/x/image/font/basicfont"
 	"math/rand"
 	"time"
 )
@@ -51,8 +53,10 @@ func run() {
 	}
 
 	var (
-		frames = 0
-		second = time.Tick(time.Second)
+		frames     = 0
+		fps        = 0
+		second     = time.Tick(time.Second)
+		basicAtlas = text.NewAtlas(basicfont.Face7x13, text.ASCII)
 	)
 
 	for !win.Closed() {
@@ -81,7 +85,6 @@ func run() {
 		}
 
 		imd.Draw(win)
-		win.Update()
 
 		for _, p := range particles {
 			p.x += p.dx
@@ -98,10 +101,15 @@ func run() {
 		frames++
 		select {
 		case <-second:
-			win.SetTitle(fmt.Sprintf("%s FPS: %d", cfg.Title, frames))
+			fps = frames
 			frames = 0
 		default:
 		}
+		log := text.New(pixel.V(20, win.Bounds().H()-40), basicAtlas)
+		_, _ = fmt.Fprintf(log, "FPS: %d", fps)
+		log.Draw(win, pixel.IM.Scaled(log.Orig, 2))
+
+		win.Update()
 	}
 }
 
